@@ -25,6 +25,7 @@ services:
         depends_on:
             - mariadb
             - redis
+            - mailhog
     mariadb:
         image: 'mariadb:10'
         ports:
