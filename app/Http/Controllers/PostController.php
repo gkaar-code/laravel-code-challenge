@@ -87,6 +87,8 @@ class PostController extends Controller
      */
     public function destroy(Post $post)
     {
-        //
+        $post->deletePost();
+
+        return response('Post deleted.', Response::HTTP_ACCEPTED);
     }
 }

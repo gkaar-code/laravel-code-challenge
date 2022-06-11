@@ -205,7 +205,7 @@ class PostsTest extends TestCase
                 'content' => 'Some other MODIFIED dummy content',
             ])
             ->assertSuccessful()
-            // INFO: ensure the newly created post is returned.
+            // INFO: ensure the recently updated post is returned.
             ->assertJson(function (AssertableJson $json) use ($attributes) {
                 $json->where('title', $attributes['title'])
                      ->where('content', $attributes['content'])
@@ -215,5 +215,31 @@ class PostsTest extends TestCase
         ;
 
         $this->assertDatabaseHas('posts', $attributes);
+    }
+
+    /** @test */
+    public function only_authenticated_users_can_delete_their_posts()
+    {
+        $post = Post::factory()->create();
+
+        $uri = route('posts.destroy', compact('post'));
+
+        $this->deleteJson($uri)
+            // INFO: middleware fails because user must be authenticated.
+            ->assertUnauthorized()
+        ;
+
+        $this->assertDatabaseHas('posts', $post->only('id'));
+
+        $post = Post::factory()->authoredBy($this->user)->create();
+
+        $uri = route('posts.destroy', compact('post'));
+
+        $this->actingAs($this->user)
+            ->deleteJson($uri)
+            ->assertSuccessful()
+        ;
+
+        $this->assertDatabaseMissing('posts', $post->only('id'));
     }
 }

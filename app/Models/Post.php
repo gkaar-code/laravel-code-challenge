@@ -84,6 +84,15 @@ class Post extends Model
         });
     }
 
+    public function deletePost() : static
+    {
+        return DB::transaction(function () {
+            $this->delete();
+
+            return $this;
+        });
+    }
+
     public function slug() : Attribute
     {
         return new Attribute(
