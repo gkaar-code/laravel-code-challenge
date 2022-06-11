@@ -2,13 +2,12 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-class ExampleTest extends TestCase
+class AppIsReadyTest extends TestCase
 {
     /**
-     * A basic test example.
+     * Test the application is up and running.
      *
      * @return void
      */
