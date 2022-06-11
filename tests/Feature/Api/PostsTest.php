@@ -144,4 +144,37 @@ class PostsTest extends TestCase
             ->assertSuccessful()
         ;
     }
+
+    /** @test */
+    public function only_authenticated_users_can_create_new_posts()
+    {
+        $uri = route('posts.store');
+
+        $this->postJson($uri, $attributes = [
+                'title' => 'A new Post Title',
+                'content' => 'Some dummy content',
+            ])
+            // INFO: middleware fails because user must be authenticated.
+            ->assertUnauthorized()
+        ;
+
+        $this->assertDatabaseMissing('posts', $attributes);
+
+        $this->actingAs($this->user)
+            ->postJson($uri, $attributes = [
+                'title' => 'A new Post Title',
+                'content' => 'Some dummy content',
+            ])
+            ->assertCreated()
+            // INFO: ensure the newly created post is returned.
+            ->assertJson(function (AssertableJson $json) use ($attributes) {
+                $json->where('title', $attributes['title'])
+                     ->where('content', $attributes['content'])
+                     ->etc()
+                ;
+            })
+        ;
+
+        $this->assertDatabaseHas('posts', $attributes);
+    }
 }

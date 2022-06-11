@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StorePostRequest;
 use App\Http\Requests\UpdatePostRequest;
 use App\Models\Post;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 
 class PostController extends Controller
@@ -34,7 +35,7 @@ class PostController extends Controller
         )
         ->paginate();
 
-        return $posts;
+        return response($posts, Response::HTTP_OK);
     }
 
     /**
@@ -45,7 +46,12 @@ class PostController extends Controller
      */
     public function store(StorePostRequest $request)
     {
-        //
+        $post = Post::storePost(
+            $request->validated(),
+            $request->user()
+        );
+
+        return response($post, Response::HTTP_CREATED);
     }
 
     /**
@@ -56,7 +62,7 @@ class PostController extends Controller
      */
     public function show(Post $post)
     {
-        return $post;
+        return response($post, Response::HTTP_OK);
     }
 
     /**

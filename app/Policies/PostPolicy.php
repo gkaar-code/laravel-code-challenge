@@ -5,7 +5,8 @@ namespace App\Policies;
 use App\Models\Post;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
-use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
 
 class PostPolicy
 {
@@ -49,7 +50,10 @@ class PostPolicy
      */
     public function create(User $user)
     {
-        //
+        return $user->is(Auth::user())?: $this->deny(
+            "Access denied to create a new post.",
+            Response::HTTP_FORBIDDEN
+        );
     }
 
     /**
