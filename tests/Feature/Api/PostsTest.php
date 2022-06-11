@@ -97,4 +97,22 @@ class PostsTest extends TestCase
             $json->etc();
         });
     }
+
+    /** @test */
+    public function a_guest_can_only_access_details_of_a_published_post()
+    {
+        $post = $this->publishedPosts->first();
+        $uri = route('posts.show', compact('post'));
+
+        $this->getJson($uri)
+            ->assertSuccessful()
+        ;
+
+        $post = $this->unpublishedPosts->first();
+        $uri = route('posts.show', compact('post'));
+
+        $this->getJson($uri)
+            ->assertForbidden()
+        ;
+    }
 }
