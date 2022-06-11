@@ -73,6 +73,17 @@ class Post extends Model
         });
     }
 
+    public function updatePost(array $attributes) : static
+    {
+        return DB::transaction(function () use ($attributes) {
+            $this->fill($attributes);
+
+            $this->save();
+
+            return $this;
+        });
+    }
+
     public function slug() : Attribute
     {
         return new Attribute(

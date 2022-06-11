@@ -74,7 +74,9 @@ class PostController extends Controller
      */
     public function update(UpdatePostRequest $request, Post $post)
     {
-        //
+        $post = $post->updatePost($request->validated());
+
+        return response($post, Response::HTTP_ACCEPTED);
     }
 
     /**

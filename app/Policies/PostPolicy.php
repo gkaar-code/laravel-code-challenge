@@ -50,7 +50,7 @@ class PostPolicy
      */
     public function create(User $user)
     {
-        return $user->is(Auth::user())?: $this->deny(
+        return $user->is(Auth::user()) ?: $this->deny(
             "Access denied to create a new post.",
             Response::HTTP_FORBIDDEN
         );
@@ -65,7 +65,10 @@ class PostPolicy
      */
     public function update(User $user, Post $post)
     {
-        return $post->author->is($user);
+        return $post->author->is($user) ?: $this->deny(
+            "Access denied to update this post: {$post->getRouteKey()}",
+            Response::HTTP_FORBIDDEN
+        );
     }
 
     /**

@@ -13,7 +13,8 @@ class UpdatePostRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        // INFO: NOOP: it is being handled at Model Policies.
+        return true;
     }
 
     /**
@@ -24,7 +25,8 @@ class UpdatePostRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'title' => 'required|string|max:50',
+            'content' => 'required|string|max:1000',
         ];
     }
 }

@@ -177,4 +177,43 @@ class PostsTest extends TestCase
 
         $this->assertDatabaseHas('posts', $attributes);
     }
+
+    /** @test */
+    public function only_authenticated_users_can_update_their_posts()
+    {
+        $post = Post::factory()->create();
+
+        $uri = route('posts.update', compact('post'));
+
+        $this->putJson($uri, $attributes = [
+                'title' => 'A MODIFIED Post Title',
+                'content' => 'Some MODIFIED dummy content',
+            ])
+            // INFO: middleware fails because user must be authenticated.
+            ->assertUnauthorized()
+        ;
+
+        $this->assertDatabaseMissing('posts', $attributes);
+
+        $post = Post::factory()->authoredBy($this->user)->create();
+
+        $uri = route('posts.update', compact('post'));
+
+        $this->actingAs($this->user)
+            ->putJson($uri, $attributes = [
+                'title' => 'Another MODIFIED Post Title',
+                'content' => 'Some other MODIFIED dummy content',
+            ])
+            ->assertSuccessful()
+            // INFO: ensure the newly created post is returned.
+            ->assertJson(function (AssertableJson $json) use ($attributes) {
+                $json->where('title', $attributes['title'])
+                     ->where('content', $attributes['content'])
+                     ->etc()
+                ;
+            })
+        ;
+
+        $this->assertDatabaseHas('posts', $attributes);
+    }
 }
