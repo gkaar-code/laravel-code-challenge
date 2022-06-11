@@ -80,7 +80,10 @@ class PostPolicy
      */
     public function delete(User $user, Post $post)
     {
-        return $post->author->is($user);
+        return $post->author->is($user)?: $this->deny(
+            "Access denied to delete this post: {$post->getRouteKey()}",
+            Response::HTTP_FORBIDDEN
+        );
     }
 
     /**
