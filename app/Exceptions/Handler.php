@@ -46,9 +46,9 @@ class Handler extends ExceptionHandler
      */
     public function register()
     {
-        $this->renderable(function (HttpException $e, Request $request) {
+        $this->renderable(function (\Throwable $e, Request $request) {
             // INFO: handle "wild" 5XX exceptions nicely.
-            if ($e->getStatusCode() >= 500) {
+            if ($e->getCode() >= 500) {
                 return response()->json([
                     'error' => 'Something went wrong, please contact us.'
                 ], Response::HTTP_BAD_REQUEST);

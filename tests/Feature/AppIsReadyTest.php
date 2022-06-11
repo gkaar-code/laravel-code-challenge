@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Http\Controllers\PostController;
+use Illuminate\Http\Response;
 use Tests\TestCase;
 
 class AppIsReadyTest extends TestCase
@@ -16,5 +18,18 @@ class AppIsReadyTest extends TestCase
         $response = $this->get('/');
 
         $response->assertStatus(200);
+    }
+
+    /** @test */
+    public function it_handles_5xx_exceptions_nicely()
+    {
+        // INFO: this endpoint needs DB. We are ensuring the
+        //       migrations are not run in this test context.
+        $this->getJson(action([PostController::class, 'index']))
+            ->assertStatus(Response::HTTP_BAD_REQUEST)
+            ->assertJson([
+                'error' => 'Something went wrong, please contact us.'
+            ])
+        ;
     }
 }
