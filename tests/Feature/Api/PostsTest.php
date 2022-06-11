@@ -115,4 +115,33 @@ class PostsTest extends TestCase
             ->assertForbidden()
         ;
     }
+
+    /** @test */
+    public function an_authenticated_user_can_access_any_post_authored_by_him()
+    {
+        $post = Post::factory()
+            ->unpublished()
+            ->create()
+        ;
+
+        $uri = route('posts.show', compact('post'));
+
+        $this->actingAs($this->user)
+            ->getJson($uri)
+            ->assertForbidden()
+        ;
+
+        $post = Post::factory()
+            ->unpublished()
+            ->authoredBy($this->user)
+            ->create()
+        ;
+
+        $uri = route('posts.show', compact('post'));
+
+        $this->actingAs($this->user)
+            ->getJson($uri)
+            ->assertSuccessful()
+        ;
+    }
 }
