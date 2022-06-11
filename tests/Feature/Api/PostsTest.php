@@ -72,4 +72,29 @@ class PostsTest extends TestCase
             $json->etc();
         });
     }
+
+    /** @test */
+    public function an_authenticated_user_can_access_published_and_his_authored_unpublished_posts()
+    {
+        /** @var \Illuminate\Contracts\Auth\Authenticatable */
+        $uri = route('posts.index');
+
+        $this->actingAs($this->user, 'sanctum')
+        ->getJson($uri)
+        ->assertSuccessful()
+        ->assertJson(function (AssertableJson $json) {
+            $json->has('data', length: self::PUBLISHED_POSTS + self::UNPUBLISHED_POSTS);
+
+            $this->publishedPosts->merge($this->unpublishedPosts)
+            ->each(function ($post, $index) use ($json) {
+                $json->has("data.{$index}", function ($json) use ($post) {
+                    foreach ($post->toArray() as $attribute => $value) {
+                        $json->where($attribute, $value);
+                    }
+                });
+            });
+
+            $json->etc();
+        });
+    }
 }

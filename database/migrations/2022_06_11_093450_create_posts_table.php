@@ -18,6 +18,12 @@ return new class extends Migration
             $userModel = User::factory()->newModel();
 
             $table->id();
+            $table->foreignIdFor(User::class, 'author_id')
+                ->references($userModel->getKeyName())
+                ->on($userModel->getTable())
+                ->cascadeOnDelete()
+                ->cascadeOnUpdate()
+            ;
             $table->string('title', 50)->index();
             $table->string('slug', 50)->index();
             $table->text('content');

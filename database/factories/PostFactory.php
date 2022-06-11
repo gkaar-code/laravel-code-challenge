@@ -27,6 +27,7 @@ class PostFactory extends Factory
     public function definition()
     {
         return [
+            'author_id' => User::factory()->lazy(),
             'title' => $title = $this->faker->words(6, asText: true),
             'slug' => Str::slug($title),
             'content' => $this->faker->paragraphs(3, asText: true),
@@ -58,6 +59,22 @@ class PostFactory extends Factory
         return $this->state(function ($attributes) {
             return [
                 'is_published' => false
+            ];
+        });
+    }
+
+    /**
+     * Indicate the author of the post.
+     *
+     * @param User $user
+     *
+     * @return static
+     */
+    public function authoredBy(User $user)
+    {
+        return $this->state(function ($attributes) use ($user) {
+            return [
+                'author_id' => $user->getKey(),
             ];
         });
     }

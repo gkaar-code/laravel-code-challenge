@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Traits\HasAuthorship;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -9,7 +10,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class Post extends Model
 {
-    use HasFactory;
+    use HasAuthorship,
+        HasFactory
+    ;
 
     protected $casts = [
         'is_published' => 'boolean',
@@ -21,6 +24,7 @@ class Post extends Model
             $query->visibleForGuests();
         })->orWhere(function ($query) use ($user) {
             $query->onlyUnpublished()
+                  ->authoredBy($user)
             ;
         });
     }
