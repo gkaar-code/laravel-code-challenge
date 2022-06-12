@@ -37,6 +37,7 @@ class CommentsTest extends TestCase
             )
             ->has(Comment::factory()
                 ->unpublished()
+                ->authoredBy($this->user)
                 ->count(self::UNPUBLISHED_COMMENTS)
             )
             ->create()
@@ -75,7 +76,30 @@ class CommentsTest extends TestCase
                 $json->etc();
             })
         ;
+    }
 
-        $this->markTestIncomplete();
+    /** @test */
+    public function an_authenticated_user_can_access_published_and_his_authored_unpublished_comments()
+    {
+        $post = $this->publishedPostWithComments;
+        $uri = route('comments.index', compact('post'));
+
+        $this->actingAs($this->user)
+        ->getJson($uri)
+        ->assertSuccessful()
+        ->assertJson(function (AssertableJson $json) {
+            $json->has('data', length: self::PUBLISHED_COMMENTS + self::UNPUBLISHED_COMMENTS);
+
+            $this->publishedPostWithComments->comments
+            ->each(function ($comment, $index) use ($json) {
+                $json->has("data.{$index}", function ($json) use ($comment) {
+                    foreach ($comment->toArray() as $attribute => $value) {
+                        $json->where($attribute, $value);
+                    }
+                });
+            });
+
+            $json->etc();
+        });
     }
 }

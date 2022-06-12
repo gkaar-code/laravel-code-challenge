@@ -19,6 +19,7 @@ class CommentFactory extends Factory
     public function definition()
     {
         return [
+            'author_id' => User::factory()->lazy(),
             'content' => $this->faker->paragraphs(nb: 3, asText: true),
             // INFO: a comment can only be published if the post it belongs
             //       has already been published:
@@ -55,6 +56,22 @@ class CommentFactory extends Factory
         return $this->state(function ($attributes) {
             return [
                 'is_published' => false
+            ];
+        });
+    }
+
+    /**
+     * Indicate the author of the post.
+     *
+     * @param User $user
+     *
+     * @return static
+     */
+    public function authoredBy(User $user)
+    {
+        return $this->state(function ($attributes) use ($user) {
+            return [
+                'author_id' => $user->getKey(),
             ];
         });
     }
