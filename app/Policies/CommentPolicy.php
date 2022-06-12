@@ -83,7 +83,10 @@ class CommentPolicy
      */
     public function delete(User $user, Comment $comment)
     {
-        //
+        return $comment->author->is($user)?: $this->deny(
+            "Access denied to delete this comment: {$comment->getRouteKey()}",
+            Response::HTTP_FORBIDDEN
+        );
     }
 
     /**

@@ -69,4 +69,13 @@ class Comment extends Model
             return $this;
         });
     }
+
+    public function deleteComment() : static
+    {
+        return DB::transaction(function () {
+            $this->delete();
+
+            return $this;
+        });
+    }
 }

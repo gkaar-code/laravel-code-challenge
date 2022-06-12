@@ -226,4 +226,30 @@ class CommentsTest extends TestCase
             $attributes + $comment->only('id', 'post_id', 'author_id')
         );
     }
+
+    /** @test */
+    public function only_authenticated_users_can_delete_their_comments()
+    {
+        $comment = Comment::factory()->create();
+
+        $uri = route('comments.destroy', compact('comment'));
+
+        $this->deleteJson($uri)
+            // INFO: middleware fails because user must be authenticated.
+            ->assertUnauthorized()
+        ;
+
+        $this->assertDatabaseHas('comments', $comment->only('id'));
+
+        $comment = Comment::factory()->authoredBy($this->user)->create();
+
+        $uri = route('comments.destroy', compact('comment'));
+
+        $this->actingAs($this->user)
+            ->deleteJson($uri)
+            ->assertSuccessful()
+        ;
+
+        $this->assertDatabaseMissing('comments', $comment->only('id'));
+    }
 }
