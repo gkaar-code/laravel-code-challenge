@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CommentController;
 use App\Http\Controllers\PostController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -20,6 +21,9 @@ Route::group([
     // EMPTY
 ], function () {
     Route::apiResource('posts', PostController::class)->only([
+        'index', 'show',
+    ]);
+    Route::apiResource('comments', CommentController::class)->only([
         'index', 'show',
     ]);
 });
