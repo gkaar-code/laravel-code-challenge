@@ -7,11 +7,11 @@ trait IsPublishable
 {
     public static function scopeOnlyPublished(Builder $query)
     {
-        $query->where('is_published', '=', true);
+        $query->where($query->qualifyColumn('is_published'), '=', true);
     }
 
     public static function scopeOnlyUnpublished(Builder $query)
     {
-        $query->where('is_published', '=', false);
+        $query->where($query->qualifyColumn('is_published'), '=', false);
     }
 }
