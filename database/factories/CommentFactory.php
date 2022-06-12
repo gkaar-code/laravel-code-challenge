@@ -41,7 +41,8 @@ class CommentFactory extends Factory
     {
         return $this->state(function ($attributes) {
             return [
-                'is_published' => true
+                'is_published' => true,
+                'post_id' => Post::factory()->published()->lazy(),
             ];
         });
     }
@@ -55,7 +56,8 @@ class CommentFactory extends Factory
     {
         return $this->state(function ($attributes) {
             return [
-                'is_published' => false
+                'is_published' => false,
+                'post_id' => Post::factory()->published()->lazy(),
             ];
         });
     }

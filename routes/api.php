@@ -26,6 +26,9 @@ Route::group([
     Route::apiResource('posts.comments', CommentController::class)->only([
         'index', 'show',
     ])->shallow();
+    Route::apiResource('users.comments', UserCommentsController::class)->only([
+        'index',
+    ]);
 });
 
 Route::group([
