@@ -34,6 +34,9 @@ Route::group([
     Route::apiResource('posts', PostController::class)->except([
         'index', 'show'
     ]);
+    Route::apiResource('posts.comments', CommentController::class)->except([
+        'index', 'show',
+    ])->shallow();
 });
 
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {

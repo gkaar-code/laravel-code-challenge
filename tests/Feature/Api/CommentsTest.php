@@ -114,6 +114,7 @@ class CommentsTest extends TestCase
 
         $this->getJson($uri)
             ->assertSuccessful()
+            ->assertJsonFragment($comment->toArray())
         ;
 
         $comment = $this->publishedPostWithComments->comments
@@ -152,6 +153,37 @@ class CommentsTest extends TestCase
         $this->actingAs($this->user)
             ->getJson($uri)
             ->assertSuccessful()
+            ->assertJsonFragment($comment->toArray())
         ;
+    }
+
+    /** @test */
+    public function only_authenticated_users_can_create_new_comments()
+    {
+        $post = $this->publishedPostWithComments;
+        $uri = route('posts.comments.store', compact('post'));
+
+        $this->postJson($uri, $attributes = [
+                'content' => 'Some dummy content',
+            ])
+            // INFO: middleware fails because user must be authenticated.
+            ->assertUnauthorized()
+        ;
+
+        $this->assertDatabaseMissing('comments', $attributes + $post->only('post_id'));
+
+        $this->actingAs($this->user)
+            ->postJson($uri, $attributes = [
+                'content' => 'Some dummy content',
+            ])
+            ->assertCreated()
+            // INFO: ensure the newly created comment is returned.
+            ->assertJsonFragment($attributes)
+        ;
+
+        $this->assertDatabaseHas(
+            'comments',
+            $attributes + ['post_id' => $post->getKey()]
+        );
     }
 }

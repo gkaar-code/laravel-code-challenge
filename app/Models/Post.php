@@ -57,7 +57,7 @@ class Post extends Model
     {
         return DB::transaction(function () use ($attributes, $author) {
 
-            $post = new Post($attributes);
+            $post = new static($attributes);
 
             $post->author()->associate($author);
 

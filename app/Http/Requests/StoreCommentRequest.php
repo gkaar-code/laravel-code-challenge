@@ -13,7 +13,8 @@ class StoreCommentRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        // INFO: NOOP: it is being handled at Model Policies.
+        return true;
     }
 
     /**
@@ -24,7 +25,7 @@ class StoreCommentRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'content' => 'required|string|max:1000',
         ];
     }
 }

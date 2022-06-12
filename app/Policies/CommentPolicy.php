@@ -6,6 +6,7 @@ use App\Models\Comment;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
 
 class CommentPolicy
 {
@@ -52,7 +53,10 @@ class CommentPolicy
      */
     public function create(User $user)
     {
-        //
+        return $user->is(Auth::user()) ?: $this->deny(
+            "Access denied to create a new comment.",
+            Response::HTTP_FORBIDDEN
+        );
     }
 
     /**
