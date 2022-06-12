@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Api;
 
+use App\Models\Comment;
 use App\Models\Post;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -15,6 +16,12 @@ class PostsTest extends TestCase
 
     const PUBLISHED_POSTS = 2;
     const UNPUBLISHED_POSTS = 3;
+
+    const PUBLISHED_COMMENTS = 10;
+    const UNPUBLISHED_COMMENTS = 3;
+
+    const MAX_DISPLAYED_COMMENTS = 5;
+
 
     /** @var \App\Models\User */
     protected $user;
@@ -33,6 +40,8 @@ class PostsTest extends TestCase
 
         $this->publishedPosts = Post::factory(count: self::PUBLISHED_POSTS)
             ->published()
+            ->has(Comment::factory(count: self::PUBLISHED_COMMENTS)->published())
+            ->has(Comment::factory(count: self::UNPUBLISHED_COMMENTS)->unpublished()->authoredBy($this->user))
             ->create()
         ;
 
@@ -61,10 +70,21 @@ class PostsTest extends TestCase
         ->assertJson(function (AssertableJson $json) {
             $json->has('data', length: self::PUBLISHED_POSTS);
 
-            $this->publishedPosts->each(function ($post, $index) use ($json) {
-                $json->has("data.{$index}", function ($json) use ($post) {
+            if (self::PUBLISHED_COMMENTS >= self::MAX_DISPLAYED_COMMENTS) {
+                $expectedLength = self::MAX_DISPLAYED_COMMENTS;
+            } else {
+                $expectedLength =self::PUBLISHED_COMMENTS;
+            }
+
+            $this->publishedPosts->each(function ($post, $index) use ($json, $expectedLength) {
+                $json->has("data.{$index}", function ($json) use ($post, $expectedLength) {
                     foreach ($post->toArray() as $attribute => $value) {
                         $json->where($attribute, $value);
+                        $json->where(
+                            'total_comments',
+                            self::PUBLISHED_COMMENTS
+                        );
+                        $json->has('comments', length: $expectedLength);
                     }
                 });
             });
@@ -89,6 +109,11 @@ class PostsTest extends TestCase
                 $json->has("data.{$index}", function ($json) use ($post) {
                     foreach ($post->toArray() as $attribute => $value) {
                         $json->where($attribute, $value);
+                        $json->where(
+                            'total_comments',
+                            $post->comments()->count()
+                        );
+                        $json->has('comments');
                     }
                 });
             });

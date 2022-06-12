@@ -6,6 +6,7 @@ use App\Http\Requests\StorePostRequest;
 use App\Http\Requests\UpdatePostRequest;
 use App\Models\Post;
 use Illuminate\Http\Response;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
 
 class PostController extends Controller
@@ -30,12 +31,36 @@ class PostController extends Controller
         $posts = Post::query()
         ->when(
             $user = Auth::user(),
-            fn ($query) => $query->visibleForAuthenticated($user),
-            fn ($query) => $query->visibleForGuests(),
+            function ($query) use ($user) {
+                $query->visibleForAuthenticated($user)
+                    ->with([
+                        'comments' => fn ($query) => $query->visibleForAuthenticated($user)->latest(),
+                    ])
+                    ->withCount([
+                        'comments as total_comments' => fn ($query) => $query->visibleForAuthenticated($user),
+                    ])
+                ;
+            },
+            function ($query) {
+                $query->visibleForGuests()
+                    ->with([
+                        'comments' => fn ($query) => $query->visibleForGuests()->latest(),
+                    ])
+                    ->withCount([
+                        'comments as total_comments' => fn ($query) => $query->visibleForGuests(),
+                    ])
+                ;
+            },
         )
-        ->paginate();
+        ->lazy()
+        ->map(function ($post) {
+            $post->setRelation('comments', $post->comments->lazy()->take(5));
+            return $post;
+        });
 
-        return response($posts, Response::HTTP_OK);
+        $paginated = new LengthAwarePaginator($posts, $posts->count(), Post::query()->getModel()->getPerPage());
+
+        return response($paginated, Response::HTTP_OK);
     }
 
     /**
