@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreCommentRequest;
 use App\Http\Requests\UpdateCommentRequest;
 use App\Models\Comment;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
 
 class CommentController extends Controller
 {
@@ -15,7 +17,15 @@ class CommentController extends Controller
      */
     public function index()
     {
-        //
+        $comments = Comment::query()
+        ->when(
+            $user = Auth::user(),
+            fn ($query) => $query->visibleForAuthenticated($user),
+            fn ($query) => $query->visibleForGuests($user),
+        )
+        ->paginate();
+
+        return response($comments, Response::HTTP_OK);
     }
 
     /**
