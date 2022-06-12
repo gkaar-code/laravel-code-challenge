@@ -125,4 +125,33 @@ class CommentsTest extends TestCase
             ->assertForbidden()
         ;
     }
+
+    /** @test */
+    public function an_authenticated_user_can_access_any_comment_authored_by_him()
+    {
+        $comment = Comment::factory()
+            ->unpublished()
+            ->create()
+        ;
+
+        $uri = route('comments.show', compact('comment'));
+
+        $this->actingAs($this->user)
+            ->getJson($uri)
+            ->assertForbidden()
+        ;
+
+        $comment = Comment::factory()
+            ->unpublished()
+            ->authoredBy($this->user)
+            ->create()
+        ;
+
+        $uri = route('comments.show', compact('comment'));
+
+        $this->actingAs($this->user)
+            ->getJson($uri)
+            ->assertSuccessful()
+        ;
+    }
 }
