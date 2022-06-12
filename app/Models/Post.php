@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Traits\HasAuthorship;
 use App\Models\Traits\HasManyComments;
+use App\Models\Traits\IsPublishable;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -16,6 +17,7 @@ class Post extends Model
 {
     use HasAuthorship,
         HasManyComments,
+        IsPublishable,
         HasFactory
     ;
 
@@ -49,16 +51,6 @@ class Post extends Model
     public static function scopeVisibleForGuests(Builder $query)
     {
         $query->onlyPublished();
-    }
-
-    public static function scopeOnlyPublished(Builder $query)
-    {
-        $query->where('is_published', '=', true);
-    }
-
-    public static function scopeOnlyUnpublished(Builder $query)
-    {
-        $query->where('is_published', '=', false);
     }
 
     public static function storePost(array $attributes, User $author) : static
