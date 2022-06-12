@@ -28,7 +28,7 @@ class PostFactory extends Factory
     {
         return [
             'author_id' => User::factory()->lazy(),
-            'title' => $title = $this->faker->words(6, asText: true),
+            'title' => $title = Str::limit($this->faker->words(6, asText: true), 50, ''),
             'slug' => Str::slug($title),
             'content' => $this->faker->paragraphs(3, asText: true),
             'is_published' => $this->faker->boolean(),
