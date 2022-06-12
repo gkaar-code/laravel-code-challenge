@@ -76,7 +76,6 @@ class PostsTest extends TestCase
     /** @test */
     public function an_authenticated_user_can_access_published_and_his_authored_unpublished_posts()
     {
-        /** @var \Illuminate\Contracts\Auth\Authenticatable */
         $uri = route('posts.index');
 
         $this->actingAs($this->user, 'sanctum')
