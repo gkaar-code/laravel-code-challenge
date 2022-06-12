@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Post;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -18,9 +19,15 @@ class CommentFactory extends Factory
     public function definition()
     {
         return [
-            'post_id' => Post::factory()->lazy(),
             'content' => $this->faker->paragraphs(nb: 3, asText: true),
-            'is_published' => $this->faker->boolean(),
+            // INFO: a comment can only be published if the post it belongs
+            //       has already been published:
+            //       You shouldn't even be able to add a comment to an unpublished post!
+            'is_published' => $published = $this->faker->boolean(),
+            'post_id' => ($published)
+                ? Post::factory()->published()->lazy()
+                : Post::factory()->lazy()
+            ,
         ];
     }
 
