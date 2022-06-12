@@ -124,7 +124,5 @@ class CommentsTest extends TestCase
         $this->getJson($uri)
             ->assertForbidden()
         ;
-
-        $this->markTestIncomplete();
     }
 }
