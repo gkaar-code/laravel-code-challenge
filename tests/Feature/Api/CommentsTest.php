@@ -47,7 +47,8 @@ class CommentsTest extends TestCase
     /** @test */
     public function a_list_of_comments_has_public_access()
     {
-        $uri = route('comments.index');
+        $post = $this->publishedPostWithComments;
+        $uri = route('posts.comments.index', compact('post'));
 
         $this->getJson($uri)->assertSuccessful();
     }
@@ -57,7 +58,7 @@ class CommentsTest extends TestCase
     {
         $post = $this->publishedPostWithComments;
 
-        $uri = route('comments.index', compact('post'));
+        $uri = route('posts.comments.index', compact('post'));
         $this->getJson($uri)
             ->assertSuccessful()
             ->assertJson(function (AssertableJson $json) {
@@ -82,7 +83,7 @@ class CommentsTest extends TestCase
     public function an_authenticated_user_can_access_published_and_his_authored_unpublished_comments()
     {
         $post = $this->publishedPostWithComments;
-        $uri = route('comments.index', compact('post'));
+        $uri = route('posts.comments.index', compact('post'));
 
         $this->actingAs($this->user)
         ->getJson($uri)
@@ -101,5 +102,29 @@ class CommentsTest extends TestCase
 
             $json->etc();
         });
+    }
+
+    /** @test */
+    public function a_guest_can_only_access_details_of_a_published_comment()
+    {
+        $comment = $this->publishedPostWithComments->comments
+            ->first(fn ($comment) => $comment->is_published)
+        ;
+        $uri = route('comments.show', compact('comment'));
+
+        $this->getJson($uri)
+            ->assertSuccessful()
+        ;
+
+        $comment = $this->publishedPostWithComments->comments
+            ->first(fn ($comment) => !$comment->is_published)
+        ;
+        $uri = route('comments.show', compact('comment'));
+
+        $this->getJson($uri)
+            ->assertForbidden()
+        ;
+
+        $this->markTestIncomplete();
     }
 }
