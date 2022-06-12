@@ -68,7 +68,10 @@ class CommentPolicy
      */
     public function update(User $user, Comment $comment)
     {
-        //
+        return $comment->author->is($user) ?: $this->deny(
+            "Access denied to update this comment: {$comment->getRouteKey()}",
+            Response::HTTP_FORBIDDEN
+        );
     }
 
     /**

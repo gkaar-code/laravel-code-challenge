@@ -58,4 +58,15 @@ class Comment extends Model
             return $comment;
         });
     }
+
+    public function updateComment(array $attributes) : static
+    {
+        return DB::transaction(function () use ($attributes) {
+            $this->fill($attributes);
+
+            $this->save();
+
+            return $this;
+        });
+    }
 }

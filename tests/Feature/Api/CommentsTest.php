@@ -186,4 +186,44 @@ class CommentsTest extends TestCase
             $attributes + ['post_id' => $post->getKey()]
         );
     }
+
+    /** @test */
+    public function only_authenticated_users_can_update_their_comments()
+    {
+        $comment = Post::factory()->create();
+
+        $uri = route('comments.update', compact('comment'));
+
+        $this->putJson($uri, $attributes = [
+                'content' => 'Some MODIFIED dummy content',
+            ])
+            // INFO: middleware fails because user must be authenticated.
+            ->assertUnauthorized()
+        ;
+
+        $this->assertDatabaseMissing(
+            'comments',
+            $attributes + $comment->only('id', 'post_id', 'author_id')
+        );
+
+        $comment = Comment::factory()->authoredBy($this->user)->create();
+
+        $uri = route('comments.update', compact('comment'));
+
+        $this->actingAs($this->user)
+            ->putJson($uri, $attributes = [
+                'content' => 'Some other MODIFIED dummy content',
+            ])
+            ->assertSuccessful()
+            // INFO: ensure the recently updated post is returned.
+            ->assertJsonFragment(
+                $attributes + $comment->only('id', 'post_id', 'author_id')
+            )
+        ;
+
+        $this->assertDatabaseHas(
+            'comments',
+            $attributes + $comment->only('id', 'post_id', 'author_id')
+        );
+    }
 }
