@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Traits\HasAuthorship;
+use App\Models\Traits\HasManyComments;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -14,6 +15,7 @@ use Illuminate\Support\Str;
 class Post extends Model
 {
     use HasAuthorship,
+        HasManyComments,
         HasFactory
     ;
 
