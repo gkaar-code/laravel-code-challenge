@@ -32,7 +32,7 @@ class CommentController extends Controller
         ->when(
             $user = Auth::user(),
             fn ($query) => $query->visibleForAuthenticated($user),
-            fn ($query) => $query->visibleForGuests($user),
+            fn ($query) => $query->visibleForGuests(),
         )
         ->paginate();
 

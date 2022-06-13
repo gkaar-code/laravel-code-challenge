@@ -13,15 +13,15 @@ class UserCommentsTest extends TestCase
 {
     use RefreshDatabase;
 
-    const OTHER_PUBLISHED_COMMENTS = 2;
-    const OWN_UNPUBLISHED_COMMENTS = 3;
-    const OWN_PUBLISHED_COMMENTS = 4;
+    const PETER_PUBLISHED_COMMENTS = 2;
+    const JOHN_UNPUBLISHED_COMMENTS = 3;
+    const JOHN_PUBLISHED_COMMENTS = 4;
 
     /** @var \App\Models\User */
-    protected $loggedUser;
+    protected $userJohn;
 
     /** @var \App\Models\User */
-    protected $user;
+    protected $userPeter;
 
     /** @var \App\Models\Post */
     protected $publishedPostWithComments;
@@ -29,27 +29,59 @@ class UserCommentsTest extends TestCase
     protected function setUp() : void
     {
         parent::setUp();
-        $this->loggedUser = User::factory()->create();
 
-        $this->user = User::factory()
-            ->has(Comment::factory()->published()->count(self::OTHER_PUBLISHED_COMMENTS))
-            ->has(Comment::factory()->unpublished()->count(self::OWN_UNPUBLISHED_COMMENTS)->authoredBy($this->loggedUser))
-            ->has(Comment::factory()->published()->count(self::OWN_PUBLISHED_COMMENTS)->authoredBy($this->loggedUser))
+        $this->userJohn = User::factory()->create();
+
+        Comment::factory()
+            ->unpublished()
+            ->count(self::JOHN_UNPUBLISHED_COMMENTS)
+            ->authoredBy($this->userJohn)
             ->create()
         ;
 
+        Comment::factory()
+            ->published()
+            ->count(self::JOHN_PUBLISHED_COMMENTS)
+            ->authoredBy($this->userJohn)
+            ->create()
+        ;
+
+        $this->userPeter = User::factory()->create();
+
+        Comment::factory()
+            ->published()
+            ->count(self::PETER_PUBLISHED_COMMENTS)
+            ->authoredBy($this->userPeter)
+            ->create()
+        ;
     }
 
     /** @test */
     public function a_guest_can_view_published_comments_authored_by_any_user()
     {
-        $user = $this->user;
+        $user = $this->userJohn;
 
         $uri = route('users.comments.index', compact('user'));
+
+
+        // INFO: Unauthenticated user wants to see John's coments.
         $this->getJson($uri)
             ->assertSuccessful()
             ->assertJson(fn (AssertableJson $json) => $json
-                ->has('data', self::OTHER_PUBLISHED_COMMENTS + self::OWN_PUBLISHED_COMMENTS)
+                ->has('data', self::JOHN_PUBLISHED_COMMENTS)
+                ->etc()
+            )
+        ;
+
+        $user = $this->userPeter;
+
+        $uri = route('users.comments.index', compact('user'));
+
+        // INFO: Unauthenticated user wants to see Peter's coments.
+        $this->getJson($uri)
+            ->assertSuccessful()
+            ->assertJson(fn (AssertableJson $json) => $json
+                ->has('data', self::PETER_PUBLISHED_COMMENTS)
                 ->etc()
             )
         ;
@@ -58,31 +90,32 @@ class UserCommentsTest extends TestCase
     /** @test */
     public function an_authenticated_user_can_view_published_comments_and_those_authored_by_him()
     {
-        $user = $this->user;
+        $user = $this->userPeter;
 
+        // INFO: John wants to see Peter's comments .
         $uri = route('users.comments.index', compact('user'));
-        $this->actingAs($this->loggedUser)
+
+        $this->actingAs($this->userJohn)
             ->getJson($uri)
             ->assertSuccessful()
             ->assertJson(fn (AssertableJson $json) => $json
-                ->has('data', self::OTHER_PUBLISHED_COMMENTS + self::OWN_PUBLISHED_COMMENTS)
+                ->has('data', self::PETER_PUBLISHED_COMMENTS)
                 ->etc()
             )
         ;
 
-        // INFO: when being the same user, protected comments can be seen too.
-        $user = $this->loggedUser;
+        // INFO: John wants to see his own comments.
+        $user = $this->userJohn;
 
         $uri = route('users.comments.index', compact('user'));
-        $this->actingAs($this->loggedUser)
+
+        $this->actingAs($this->userJohn)
             ->getJson($uri)
             ->assertSuccessful()
             ->assertJson(fn (AssertableJson $json) => $json
-                ->has('data', self::OTHER_PUBLISHED_COMMENTS + self::OWN_PUBLISHED_COMMENTS + self::OWN_UNPUBLISHED_COMMENTS)
+                ->has('data', self::JOHN_PUBLISHED_COMMENTS + self::JOHN_UNPUBLISHED_COMMENTS)
                 ->etc()
             )
         ;
-
-        $this->markTestIncomplete();
     }
 }

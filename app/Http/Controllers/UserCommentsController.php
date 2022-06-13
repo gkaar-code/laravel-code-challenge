@@ -18,7 +18,7 @@ class UserCommentsController extends Controller
     {
         $comments = $user->comments()
         ->when(
-            $user->is($authUser = Auth::user()),
+            ($authUser = Auth::user()) && $user->is($authUser),
             fn ($query) => $query->visibleForAuthenticated($authUser),
             fn ($query) => $query->visibleForGuests(),
         )
