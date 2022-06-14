@@ -3,6 +3,9 @@
 namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -43,8 +46,13 @@ class Handler extends ExceptionHandler
      */
     public function register()
     {
-        $this->reportable(function (Throwable $e) {
-            //
+        $this->renderable(function (\Throwable $e, Request $request) {
+            // INFO: handle "wild" 5XX exceptions nicely.
+            if ($e->getCode() >= 500) {
+                return response()->json([
+                    'error' => 'Something went wrong, please contact us.'
+                ], Response::HTTP_BAD_REQUEST);
+            }
         });
     }
 }

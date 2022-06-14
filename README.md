@@ -1,64 +1,91 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400"></a></p>
+PHP Laravel Code Challenge
+==========================
+We expect you to build a small Laravel application.
+The application does not need a frontend; we want it to be an API-only project.
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Below you will find the models we want you to work with and details about the endpoints we
+want you to provide.
 
-## About Laravel
+## Models
+### Users Model
+- id
+- username
+- name
+- created_at
+- updated_at
+### Posts Model
+- id
+- title
+- slug
+- content
+- is_published
+- created_at
+- updated_at
+### Comments Model
+- id
+- content
+- is_published
+- created_at
+- updated_at
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Relationship Requirements
+- A user can post a post.
+- A user can post many posts.
+- A post can have many comments.
+- A user can comment on many posts.
+> You can freely modify the models above to meet the relationship requirements.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## API Endpoints Requirements
+- The API endpoints must follow, as close as possible, the JSON API specifications.
+- Errors must be handled and returned by the API, so whoever is consuming it will not see wild 500 exceptions.
+- Public endpoints can be accessed by anyone consuming the API.
+- Protected endpoints can only be accessed by an authenticated user.
+- Both first and third-party clients will consume the API.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### Posts
+#### List Posts Public:
+- Public.
+- Paginated.
+- Only published posts.
+- Should include the last 5 comments.
+- Should include comment's total count.
+#### List Posts Protected:
+- Protected.
+- Paginated.
+#### View Post Public:
+- Public.
+- Only published posts.
+#### View Post Protected:
+- Protected.
+#### Create Post:
+- Protected.
+#### Edit Post:
+- Protected.
+- Only the post owner can edit it.
+#### Delete Post:
+- Protected.
+- Only the post owner can delete it.
 
-## Learning Laravel
-
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-## Laravel Sponsors
-
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
-
-### Premium Partners
-
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
-
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### Comments
+#### List Comments for a given Post Public:
+- Public.
+- Paginated.
+- Only published comments.
+#### List Comments for a given Post Protected:
+- Protected.
+- Paginated.
+#### List Comments for a given User Public:
+- Public.
+- Paginated.
+- Only published comments.
+#### List Comments for a given User Protected:
+- Protected.
+- Paginated.
+#### Create Comment:
+- Protected
+#### Edit Comment:
+- Protected.
+- Only the comment owner can edit it.
+#### Delete Comment:
+- Protected.
+- Only the comment owner can delete it.
